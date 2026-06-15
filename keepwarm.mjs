@@ -73,8 +73,9 @@ try {
         throw new Error('app did not connect (no session websocket, no shell) within timeout');
       }
 
-      // Brief dwell so the session is registered as active.
-      await page.waitForTimeout(6000);
+      // Dwell so the session is clearly registered as real traffic (resets the
+      // 12h inactivity timer), not a transient connection.
+      await page.waitForTimeout(15000);
       console.log(`[${url}] warm. title="${await page.title()}" ws=${wsOpen}`);
     } catch (err) {
       hadError = true;

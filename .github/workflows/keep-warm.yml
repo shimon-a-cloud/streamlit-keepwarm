@@ -2,9 +2,10 @@ name: keep-warm
 
 on:
   schedule:
-    # Every 10 min during business hours JST.
-    # GitHub cron is UTC (JST = UTC+9). UTC hours 0-14 + 22-23 == JST 07:00-23:59.
-    - cron: '*/10 0-14,22-23 * * *'
+    # Every 3 hours, 24/7 (8 runs/day). Streamlit Community Cloud sleeps an app
+    # after 12h of no real (browser) traffic, so a few visits/day is plenty;
+    # 3h spacing keeps us well under 12h even if GitHub skips a couple of runs.
+    - cron: '0 */3 * * *'
   workflow_dispatch: {}   # allow manual run from the Actions tab
 
 concurrency:

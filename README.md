@@ -13,7 +13,8 @@ Streamlit Cloud のスリープ判定は **実際のブラウザ接続（websock
 
 ## 仕組み
 
-- `.github/workflows/keep-warm.yml` … 業務時間帯（JST 07:00〜23:59）に10分おきに実行（cronはUTC）。手動実行も可。
+- `.github/workflows/keep-warm.yml` … 3時間おき・24時間（1日8回）実行。手動実行も可。
+  Streamlit Cloud は「実ブラウザ訪問が12時間ないと休眠」なので、1日数回で十分（HTTP監視は無効）。
 - `keepwarm.mjs` … 対象URLを順に開き、必要ならwakeボタンをクリック→Streamlitシェルの接続を待つ。
 - 対象URLは GitHub Secret `APP_URLS`（改行 or カンマ区切り）で指定。コードにURLは書かない。
 
