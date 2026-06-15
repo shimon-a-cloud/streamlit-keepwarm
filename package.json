@@ -1,0 +1,13 @@
+{
+  "name": "streamlit-keepwarm",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Keep Streamlit Community Cloud apps awake via a real headless browser visit (GitHub Actions).",
+  "scripts": {
+    "keepwarm": "node keepwarm.mjs"
+  },
+  "dependencies": {
+    "playwright": "^1.40.0"
+  }
+}
