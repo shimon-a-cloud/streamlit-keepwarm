@@ -33,23 +33,35 @@ try {
     const page = await context.newPage();
     try {
       console.log(`\n[${url}] visiting...`);
-      await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
+      await page.goto(url, { waitUntil: 'load', timeout: 60000 });
 
-      // If asleep, Streamlit serves a platform interstitial with a wake button.
+      // Both the sleep interstitial (wake button) and the live app shell are
+      // rendered by JS, so wait for whichever appears first before acting.
       const wakeButton = page.getByRole('button', { name: WAKE_BUTTON });
-      if (await wakeButton.count().catch(() => 0)) {
+      const shell = page.locator(SHELL).first();
+      await Promise.race([
+        wakeButton.waitFor({ state: 'visible', timeout: 60000 }).catch(() => {}),
+        shell.waitFor({ state: 'visible', timeout: 60000 }).catch(() => {}),
+      ]);
+
+      // If asleep, click the wake button (cold start then follows).
+      if (await wakeButton.isVisible().catch(() => false)) {
         console.log(`[${url}] app was asleep — clicking wake button...`);
-        await wakeButton.first().click().catch(() => {});
+        await wakeButton.click().catch(() => {});
       }
 
       // Cold start can take 30-90s; give it room.
-      await page.waitForSelector(SHELL, { timeout: 150000 });
+      await shell.waitFor({ state: 'visible', timeout: 180000 });
       // Brief dwell so the session is registered as active.
       await page.waitForTimeout(8000);
       console.log(`[${url}] awake. title="${await page.title()}"`);
     } catch (err) {
       hadError = true;
       console.error(`[${url}] FAILED: ${err.message}`);
+      // Diagnostics: what was actually on the page?
+      const title = await page.title().catch(() => '?');
+      const buttons = await page.locator('button').allInnerTexts().catch(() => []);
+      console.error(`[${url}] diag: title="${title}" buttons=${JSON.stringify(buttons)}`);
     } finally {
       await context.close();
     }
